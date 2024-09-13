@@ -114,3 +114,8 @@ resource "aws_instance" "server" {
   }
 
 }
+
+# Output the EC2 public IP
+output "public_ip" {
+  value = aws_instance.server.public_ip
+}
