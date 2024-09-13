@@ -8,9 +8,9 @@ pipeline {
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('Clone Repository') {
             steps {
-                git 'https://github.com/Aashish-cyber/Terraform-CICD.git', branch: 'main' // Replace with your GitHub repository URL
+                git branch: 'main', url: 'https://github.com/Aashish-cyber/Terraform-CICD.git'  // Your GitHub repository
             }
         }
 
