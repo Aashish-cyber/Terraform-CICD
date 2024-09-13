@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/Aashish-cyber/Terraform-CICD.git'  // Replace with your GitHub repository URL
+                git 'https://github.com/Aashish-cyber/Terraform-CICD.git', branch: 'main' // Replace with your GitHub repository URL
             }
         }
 
