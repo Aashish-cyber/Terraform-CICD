@@ -26,18 +26,30 @@ pipeline {
             }
         }
 
+        stage('Retrieve EC2 Public IP') {
+            steps {
+                script {
+                    // Retrieve the EC2 instance public IP directly from the state file
+                    def ec2PublicIp = sh(script: 'terraform state show aws_instance.server | grep public_ip | awk \'{print $2}\'', returnStdout: true).trim()
+                    
+                    echo "EC2 Public IP: ${ec2PublicIp}"
+                    
+                    // Store the EC2 public IP in an environment variable for use in subsequent steps
+                    env.EC2_PUBLIC_IP = ec2PublicIp
+                }
+            }
+        }
+
         stage('Deploy Flask App') {
             steps {
-                sshagent([a8044eac-fbb2-4b72-bfe1-3055d4414995]) {
+                sshagent([EC2_KEY_CREDENTIAL_ID]) {
                     script {
-                        def ec2PublicIp = sh(script: 'terraform output -raw 65.2.131.64', returnStdout: true).trim()
-
                         // Copy the app to the EC2 instance
-                        sh "scp -o StrictHostKeyChecking=no app.py ubuntu@${65.2.131.64}:/home/ubuntu/"
+                        sh "scp -o StrictHostKeyChecking=no app.py ubuntu@${env.EC2_PUBLIC_IP}:/home/ubuntu/"
 
                         // SSH into the EC2 instance and deploy the app
                         sh """
-                        ssh -o StrictHostKeyChecking=no ubuntu@${65.2.131.64} << EOF
+                        ssh -o StrictHostKeyChecking=no ubuntu@${env.EC2_PUBLIC_IP} << EOF
                         cd /home/ubuntu
                         python3 -m venv venv
                         source venv/bin/activate
@@ -57,3 +69,4 @@ pipeline {
         }
     }
 }
+
